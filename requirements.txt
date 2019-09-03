@@ -1,2 +1,2 @@
-boto3==1.12
+boto3==1.9.221
 tableauserverclient==0.8
