@@ -1,0 +1,55 @@
+version: 1
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+     - checkout
+     - run:
+        name: Upgrade pip
+        command: sudo pip install --upgrade pip
+     - run:
+        name: Install aws cli
+        command: sudo pip install awscli
+     - run: 
+        name: Install requirements.txt 
+        command: sudo pip -q install -r requirements.txt
+     - run: 
+        name: Unit test the app
+        command: ./bin/unittest_app.sh
+  deploy:
+    docker:
+      - image: circleci/python:3.6.5-jessie-node
+    steps:
+      - checkout
+      - run:
+         name: Install Serverless CLI and dependencies
+         command: ./bin/serverless_install.sh
+      - run:
+         name: Upgrade pip
+         command: sudo pip install --upgrade pip
+      - run:
+         name: Install aws cli
+         command: sudo pip install awscli
+      - run:
+         name: Serverless Deploy 
+         command: ./bin/serverless_deploy.sh $CIRCLE_BRANCH 
+
+workflows: 
+  version: 1
+  build-deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: 
+                - master
+                - production
+      - deploy:
+          requires:
+            - build 
+          filters:
+            branches:
+              only: 
+              - master 
+              - production

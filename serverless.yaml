@@ -1,0 +1,19 @@
+service: lambda-tableau
+
+provider:
+  name: aws
+  runtime: python3.6
+  logRetentionInDays: 14
+  role: ${env:TABLEAU_ROLE}
+  
+plugins:
+  - serverless-python-requirements
+
+functions:
+  queue_extracts:
+    handler: queue_extracts.handler
+    events:
+      - http:
+          path: /queue_extracts/{payload}
+          method: put
+          integration: lambda-proxy
