@@ -45,3 +45,8 @@ def handler(event, context):
                 except AttributeError:
                     logger.info(f'There was an error starting {resource.name}')
                     logger.error(tableau_response)
+
+    return {
+        "statusCode": 200,
+        "message": 'Success',
+    }
