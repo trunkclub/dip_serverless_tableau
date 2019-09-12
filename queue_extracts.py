@@ -1,3 +1,4 @@
+import json
 import logging
 
 import boto3
@@ -14,10 +15,11 @@ def handler(event, context):
     user = ssm.get_parameter(Name='/tableau/user', WithDecryption=True)['Parameter']['Value']
     password = ssm.get_parameter(Name='/tableau/password', WithDecryption=True)['Parameter']['Value']
 
-    for item in event['body']['payload']:
-        host = ssm.get_parameter(Name=f"/tableau/{item['database']}/host")['Parameter']['Value']
+    body = json.loads(event['body'])
+    for item in body['payload']:
+        host = ssm.get_parameter(Name=f"/tableau/{item['server_name']}/host")['Parameter']['Value']
 
-        logger.info(f"Connecting to {item['database']} server")
+        logger.info(f"Connecting to {item['server_name']} server")
         server = TSC.Server(host, use_server_version=True)
         auth = TSC.TableauAuth(user, password)
 
