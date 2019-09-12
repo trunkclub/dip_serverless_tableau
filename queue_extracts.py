@@ -14,7 +14,7 @@ def handler(event, context):
     user = ssm.get_parameter(Name='/tableau/user', WithDecryption=True)['Parameter']['Value']
     password = ssm.get_parameter(Name='/tableau/password', WithDecryption=True)['Parameter']['Value']
 
-    for item in event['payload']:
+    for item in event['body']['payload']:
         host = ssm.get_parameter(Name=f"/tableau/{item['database']}/host")['Parameter']['Value']
 
         logger.info(f"Connecting to {item['database']} server")
@@ -36,10 +36,10 @@ def handler(event, context):
                 resource, pagination = server.datasources.get(ro)
                 resource = resource[0]
                 logger.info(f'Refreshing datasource - {resource.name}')
-                response = server.datasources.refresh(resource)
+                tableau_response = server.datasources.refresh(resource)
                 try:
-                    created_at = response.created_at
+                    created_at = tableau_response.created_at
                     logger.info(f'{resource.name} extract queued at {created_at}')
                 except AttributeError:
                     logger.info(f'There was an error starting {resource.name}')
-                    logger.error(response)
+                    logger.error(tableau_response)
