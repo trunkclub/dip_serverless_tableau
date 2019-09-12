@@ -7,7 +7,7 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-def handler(event):
+def handler(event, context):
     logger.info(event)
     session = boto3.Session(region_name='us-east-1')
     ssm = session.client('ssm')
