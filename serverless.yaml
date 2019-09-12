@@ -14,6 +14,6 @@ functions:
     handler: queue_extracts.handler
     events:
       - http:
-          path: /queue_extracts/{payload}
+          path: queue_extracts
           method: put
           integration: lambda-proxy
