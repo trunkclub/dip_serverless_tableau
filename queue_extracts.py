@@ -4,9 +4,11 @@ import logging
 import boto3
 import tableauserverclient as TSC
 
+
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
 
 def handler(event, context):
     logger.info(event)
@@ -47,7 +49,7 @@ def handler(event, context):
                     logger.error(tableau_response)
 
     return {
-        'body': { 'message': 'Success'},
-        'headers': {},
-        'statusCode': 200
+        "body": { "message": "Success"},
+        "headers": {},
+        "statusCode": 200
     }
