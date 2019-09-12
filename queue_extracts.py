@@ -7,7 +7,8 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-def handler(event, context):
+def handler(event):
+    logger.info(event)
     session = boto3.Session(region_name='us-east-1')
     ssm = session.client('ssm')
     user = ssm.get_parameter(Name='/tableau/user', WithDecryption=True)['Parameter']['Value']
