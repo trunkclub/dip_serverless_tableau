@@ -53,7 +53,7 @@ def handler(event, context):
                     created_at = tableau_response.created_at
                     message = f'{resource.name} extract queued at {created_at}'
                     logger.info(message)
-                    extract_response['queued_at'] = created_at
+                    extract_response['queued_at'] = str(created_at)
                 except AttributeError:
                     message = f'There was an error starting {resource.name}'
                     logger.info(message)
