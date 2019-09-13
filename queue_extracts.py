@@ -49,7 +49,7 @@ def handler(event, context):
                     logger.error(tableau_response)
 
     return {
-        "body": { "message": "Success"},
+        "body": '{"message": "Success"}',
         "headers": {},
         "statusCode": 200
     }
