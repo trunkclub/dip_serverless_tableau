@@ -20,7 +20,7 @@ def handler(event, context):
     body = json.loads(event['body'])
     extract_responses = []
     for item in body['payload']:
-        server_name = item['server_name']
+        server_name = item['server']
         host = ssm.get_parameter(Name=f"/tableau/{server_name}/host")['Parameter']['Value']
 
         logger.info(f"Connecting to {server_name} server")
@@ -44,8 +44,8 @@ def handler(event, context):
                 logger.info(f'Refreshing datasource - {resource.name}')
                 tableau_response = server.datasources.refresh(resource)
                 extract_response = {
-                    'server_name': server_name,
-                    'extract_name': resource.name,
+                    'server': server_name,
+                    'name': resource.name,
                     'queued_at': None,
                     'errors': []
                 }
