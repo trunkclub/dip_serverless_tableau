@@ -18,10 +18,13 @@ def handler(event, context):
     password = ssm.get_parameter(Name='/tableau/password', WithDecryption=True)['Parameter']['Value']
 
     body = json.loads(event['body'])
+    response_message = {}
     for item in body['payload']:
-        host = ssm.get_parameter(Name=f"/tableau/{item['server_name']}/host")['Parameter']['Value']
+        server_name = item['server_name']
+        response_message[server_name] = []
+        host = ssm.get_parameter(Name=f"/tableau/{server_name}/host")['Parameter']['Value']
 
-        logger.info(f"Connecting to {item['server_name']} server")
+        logger.info(f"Connecting to {server_name} server")
         server = TSC.Server(host, use_server_version=True)
         auth = TSC.TableauAuth(user, password)
 
@@ -43,13 +46,17 @@ def handler(event, context):
                 tableau_response = server.datasources.refresh(resource)
                 try:
                     created_at = tableau_response.created_at
-                    logger.info(f'{resource.name} extract queued at {created_at}')
+                    message = f'{resource.name} extract queued at {created_at}'
+                    logger.info(message)
+                    response_message[server_name].append(message)
                 except AttributeError:
-                    logger.info(f'There was an error starting {resource.name}')
+                    message = f'There was an error starting {resource.name}'
+                    logger.info(message)
                     logger.error(tableau_response)
+                    response_message[server_name].append(message)
 
     return {
         'headers': {'content-type': 'application/json'},
         'statusCode': 200,
-        'body': ''
+        'body': json.dumps(response_message)
     }
