@@ -18,10 +18,9 @@ def handler(event, context):
     password = ssm.get_parameter(Name='/tableau/password', WithDecryption=True)['Parameter']['Value']
 
     body = json.loads(event['body'])
-    response_message = {}
+    extract_responses = []
     for item in body['payload']:
         server_name = item['server_name']
-        response_message[server_name] = []
         host = ssm.get_parameter(Name=f"/tableau/{server_name}/host")['Parameter']['Value']
 
         logger.info(f"Connecting to {server_name} server")
@@ -44,19 +43,29 @@ def handler(event, context):
                 resource = resource[0]
                 logger.info(f'Refreshing datasource - {resource.name}')
                 tableau_response = server.datasources.refresh(resource)
+                extract_response = {
+                    'server_name': server_name,
+                    'extract_name': resource.name,
+                    'queued_at': None,
+                    'errors': []
+                }
                 try:
                     created_at = tableau_response.created_at
                     message = f'{resource.name} extract queued at {created_at}'
                     logger.info(message)
-                    response_message[server_name].append(message)
+                    extract_response['queued_at'] = created_at
                 except AttributeError:
                     message = f'There was an error starting {resource.name}'
                     logger.info(message)
                     logger.error(tableau_response)
-                    response_message[server_name].append(message)
+                    extract_response['errors'].append(message)
+                extract_responses.append(extract_response)
 
     return {
         'headers': {'content-type': 'application/json'},
         'statusCode': 200,
-        'body': json.dumps(response_message)
+        'body': json.dumps({
+            'message': 'Success',
+            'extracts': extract_responses
+        })
     }
